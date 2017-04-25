@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>	
+<head>
+ <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+ 
+ <script src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.0.1/mqttws31.js" type="text/javascript"></script>
+<script type="text/javascript">
+ var WebSocket_MQTT_Broker_URL = "";
+ var MQTT_Client_ID = "";
+ var MQTT_Topic = "";
+ var MQTT_Client = "";
+ function mqtt_Connect_with_Broker(){
+
+      // Set variables
+      WebSocket_MQTT_Broker_URL = "ws://iot.eclipse.org:80/ws";
+      MQTT_Client_ID = "743763393554"; 
+      // Create a MQTT Client nstance 
+      MQTT_Client = new Paho.MQTT.Client(WebSocket_MQTT_Broker_URL, MQTT_Client_ID);
+
+      // set callback handlers
+      MQTT_Client.onConnectionLost = onConnectionLost;
+      MQTT_Client.onMessageArrived = onMessageArrived;
+
+      MQTT_Client.connect({onSuccess:onConnect});
+ 
+    }
+function onConnect() {
+      // Once a connection has been made, make a subscription and send a message.
+      
+      document.getElementById("demo").innerHTML="Durum:Servere Bağlandı";
+    }
+function onConnectionLost(responseObject) {
+      if (responseObject.errorCode !== 0) {
+       
+      document.getElementById("demo").innerHTML="Durum:"+responseObject.errorMessage;
+      }
+    }
+function onMessageArrived(message) {
+     
+
+    } 
+function mqtt_Publish_Message(value){
+     
+      message = new Paho.MQTT.Message(value.toString());
+      message.destinationName = "paho/zgur/singlein";
+      MQTT_Client.send(message);
+	
+      
+     if (value==1) {
+      document.getElementById("sol").src="pic_bulbon.gif";
+      }
+      if (value==2) {
+      document.getElementById("sol").src="pic_bulboff.gif";
+      }
+      if (value==3) {
+      document.getElementById("sag").src="pic_bulbon.gif";
+      }
+      if (value==4) {
+      document.getElementById("sag").src="pic_bulboff.gif";
+      }
+           
+    }
+
+</script>
+</head>
+<body>
+<form >
+<div id="main">
+<img  id="sol" src="pic_bulboff.gif" style="width:100px">	
+<button type="button"  onclick="mqtt_Connect_with_Broker()">Connect</button>
+<img  id="sag"src="pic_bulboff.gif" style="width:100px">	
+ <p id="demo">Durum:Servere Bağlı Değil</p>
+<br>
+<br>
+<br>
+<div>
+<button type="button" onclick="mqtt_Publish_Message(1);">AÇ</button>
+<button type="button" onclick="mqtt_Publish_Message(2);">KAPAT</button>
+<button type="button" onclick="mqtt_Publish_Message(3);">AÇ</button>
+<button type="button" onclick="mqtt_Publish_Message(4);">KAPAT</button>
+</div>
+</div>
+</form>
+</body>
+</html>
